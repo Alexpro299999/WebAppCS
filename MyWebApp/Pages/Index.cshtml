@@ -1,50 +1,57 @@
 ﻿@page
-@model MyWebApp.Pages.IndexModel
-@using MyWebApp.Models
+@model IndexModel
 @{
-    ViewData["Title"] = "Главная - Beauty Salon";
+    ViewData["Title"] = "Дашборд";
 }
 
-<div class="container text-center py-5">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <h1 class="display-4 text-primary mb-4">
-                <i class="bi bi-magic"></i> Beauty Salon
-            </h1>
+<h1 class="text-2xl font-bold text-gray-900 mb-6">Обзор клиники</h1>
 
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body">
-                            <i class="bi bi-people display-6 text-primary mb-3"></i>
-                            <h5>Клиенты</h5>
-                            <a asp-page="/Clients" class="btn btn-primary">Перейти</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body">
-                            <i class="bi bi-scissors display-6 text-success mb-3"></i>
-                            <h5>Процедуры</h5>
-                            <a asp-page="/Procedures" class="btn btn-success">Перейти</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body">
-                            <i class="bi bi-chat-left-text display-6 text-warning mb-3"></i>
-                            <h5>Отзывы</h5>
-                            <a asp-page="/Reviews" class="btn btn-warning">Перейти</a>
-                        </div>
-                    </div>
-                </div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500 mb-1">Всего клиентов</p>
+                <p class="text-2xl font-bold text-gray-800">@Model.ClientsCount</p>
             </div>
+            <div class="bg-blue-500 text-white w-12 h-12 rounded-lg flex items-center justify-center text-xl shadow-md">
+                <i class="fa-solid fa-users"></i>
+            </div>
+        </div>
+    </div>
 
-           
+    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500 mb-1">Проведено осмотров</p>
+                <p class="text-2xl font-bold text-gray-800">@Model.ExamsCount</p>
+            </div>
+            <div class="bg-emerald-500 text-white w-12 h-12 rounded-lg flex items-center justify-center text-xl shadow-md">
+                <i class="fa-solid fa-file-signature"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500 mb-1">Активные врачи</p>
+                <p class="text-2xl font-bold text-gray-800">@Model.EmployeesCount</p>
+            </div>
+            <div class="bg-purple-500 text-white w-12 h-12 rounded-lg flex items-center justify-center text-xl shadow-md">
+                <i class="fa-solid fa-user-md"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500 mb-1">Виды услуг</p>
+                <p class="text-2xl font-bold text-gray-800">@Model.ProceduresCount</p>
+            </div>
+            <div class="bg-amber-500 text-white w-12 h-12 rounded-lg flex items-center justify-center text-xl shadow-md">
+                <i class="fa-solid fa-list-check"></i>
+            </div>
         </div>
     </div>
 </div>

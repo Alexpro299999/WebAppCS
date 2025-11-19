@@ -8,33 +8,36 @@ using MyWebApp.Models;
 
 namespace MyWebApp.Pages
 {
-    public class ReviewsModel : PageModel
+    public class MedicalExamsModel : PageModel
     {
         private readonly ApplicationDbContext _context;
 
-        public ReviewsModel(ApplicationDbContext context)
+        public MedicalExamsModel(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        public IList<Review> Reviews { get; set; }
+        public IList<MedicalExam> MedicalExams { get; set; }
 
         public async Task OnGetAsync()
         {
-            Reviews = await _context.Reviews
-                .Include(r => r.Client)
-                .Include(r => r.Procedure)
+            MedicalExams = await _context.MedicalExams
+                .Include(m => m.Client)
+                .Include(m => m.Employee)
+                .Include(m => m.Procedure)
                 .ToListAsync();
         }
 
         public async Task<IActionResult> OnPostDeleteAsync(int id)
         {
-            var review = await _context.Reviews.FindAsync(id);
-            if (review != null)
+            var exam = await _context.MedicalExams.FindAsync(id);
+
+            if (exam != null)
             {
-                _context.Reviews.Remove(review);
+                _context.MedicalExams.Remove(exam);
                 await _context.SaveChangesAsync();
             }
+
             return RedirectToPage();
         }
     }

@@ -1,0 +1,43 @@
+﻿@page "{id:int?}"
+@model MyWebApp.Pages.AddEditEmployeeModel
+@{
+    ViewData["Title"] = Model.Employee.Id == 0 ? "Новый сотрудник" : "Редактирование сотрудника";
+}
+
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 bg-emerald-600">
+            <h2 class="text-lg font-medium text-white">@ViewData["Title"]</h2>
+        </div>
+        <div class="p-6">
+            <form method="post">
+                <input type="hidden" asp-for="Employee.Id" />
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ФИО сотрудника</label>
+                    <input asp-for="Employee.FullName" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" />
+                    <span asp-validation-for="Employee.FullName" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Должность</label>
+                    <input asp-for="Employee.Position" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" />
+                    <span asp-validation-for="Employee.Position" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+
+                <div class="flex items-center justify-end gap-3">
+                    <a asp-page="./Employees" class="text-gray-600 hover:text-gray-900 text-sm font-medium">Отмена</a>
+                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors">
+                        Сохранить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

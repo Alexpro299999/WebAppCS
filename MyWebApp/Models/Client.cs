@@ -1,24 +1,28 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace MyWebApp.Models
 {
     public class Client
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ClientId { get; set; }
+        public int Id { get; set; }
 
-        [Required]
-        [StringLength(200)]
-        public string Fio { get; set; } = string.Empty;
+        [Required(ErrorMessage = "Укажите фамилию")]
+        public string LastName { get; set; }
 
-        [Required]
-        [StringLength(20)]
-        public string Phone { get; set; } = string.Empty;
-        [Column(TypeName = "varbinary(max)")]
-        public byte[]? Photo { get; set; }
+        [Required(ErrorMessage = "Укажите имя")]
+        public string FirstName { get; set; }
 
-        public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
+        public string MiddleName { get; set; }
+
+        public string Fio => $"{LastName} {FirstName} {MiddleName}".Trim();
+
+        [Phone(ErrorMessage = "Некорректный номер")]
+        public string Phone { get; set; }
+
+        [EmailAddress(ErrorMessage = "Некорректный email")]
+        public string Email { get; set; }
+
+        public ICollection<Review> Reviews { get; set; }
     }
 }

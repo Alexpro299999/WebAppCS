@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -9,31 +10,32 @@ using MyWebApp.Models;
 
 namespace MyWebApp.Pages
 {
-    public class AddEditReviewModel : PageModel
+    public class AddEditMedicalExamModel : PageModel
     {
         private readonly ApplicationDbContext _context;
 
-        public AddEditReviewModel(ApplicationDbContext context)
+        public AddEditMedicalExamModel(ApplicationDbContext context)
         {
             _context = context;
         }
 
         [BindProperty]
-        public Review Review { get; set; }
+        public MedicalExam MedicalExam { get; set; }
 
         public SelectList ClientList { get; set; }
+        public SelectList EmployeeList { get; set; }
         public SelectList ProcedureList { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id.HasValue)
             {
-                Review = await _context.Reviews.FindAsync(id.Value);
-                if (Review == null) return NotFound();
+                MedicalExam = await _context.MedicalExams.FindAsync(id.Value);
+                if (MedicalExam == null) return NotFound();
             }
             else
             {
-                Review = new Review { Date = DateTime.Now, Rating = 5 };
+                MedicalExam = new MedicalExam { Date = DateTime.Today, Result = "Годен" };
             }
 
             await LoadDropdowns();
@@ -48,25 +50,23 @@ namespace MyWebApp.Pages
                 return Page();
             }
 
-            if (Review.Id == 0)
+            if (MedicalExam.Id == 0)
             {
-                _context.Reviews.Add(Review);
+                _context.MedicalExams.Add(MedicalExam);
             }
             else
             {
-                _context.Reviews.Update(Review);
+                _context.MedicalExams.Update(MedicalExam);
             }
 
             await _context.SaveChangesAsync();
-            return RedirectToPage("./Reviews");
+            return RedirectToPage("./MedicalExams");
         }
 
         private async Task LoadDropdowns()
         {
-            // Используем Fio для отображения клиента
-            var clients = await _context.Clients.ToListAsync();
-            ClientList = new SelectList(clients, "Id", "Fio");
-
+            ClientList = new SelectList(await _context.Clients.ToListAsync(), "Id", "LastName");
+            EmployeeList = new SelectList(await _context.Employees.ToListAsync(), "Id", "FullName");
             ProcedureList = new SelectList(await _context.Procedures.ToListAsync(), "Id", "Name");
         }
     }

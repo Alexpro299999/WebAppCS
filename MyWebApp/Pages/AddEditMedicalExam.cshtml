@@ -1,0 +1,68 @@
+﻿@page "{id:int?}"
+@model MyWebApp.Pages.AddEditMedicalExamModel
+@{
+    ViewData["Title"] = Model.MedicalExam.Id == 0 ? "Оформление осмотра" : "Редактирование осмотра";
+}
+
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 bg-emerald-600">
+            <h2 class="text-lg font-medium text-white">@ViewData["Title"]</h2>
+        </div>
+        <div class="p-6">
+            <form method="post">
+                <input type="hidden" asp-for="MedicalExam.Id" />
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Дата (ГГГГ-ММ-ДД)</label>
+                    <!-- Убрал type="date" для надежности, или используй type="text" -->
+                    <input asp-for="MedicalExam.Date" type="text" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" placeholder="2023-10-25" />
+                    <span asp-validation-for="MedicalExam.Date" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Клиент</label>
+                    <select asp-for="MedicalExam.ClientId" asp-items="Model.ClientList" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm rounded-md">
+                        <option value="">-- Выберите клиента --</option>
+                    </select>
+                    <span asp-validation-for="MedicalExam.ClientId" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Врач</label>
+                    <select asp-for="MedicalExam.EmployeeId" asp-items="Model.EmployeeList" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm rounded-md">
+                        <option value="">-- Выберите врача --</option>
+                    </select>
+                    <span asp-validation-for="MedicalExam.EmployeeId" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Услуга</label>
+                    <select asp-for="MedicalExam.ProcedureId" asp-items="Model.ProcedureList" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm rounded-md">
+                        <option value="">-- Выберите услугу --</option>
+                    </select>
+                    <span asp-validation-for="MedicalExam.ProcedureId" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Заключение</label>
+                    <input asp-for="MedicalExam.Result" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" placeholder="Например: Годен" />
+                    <span asp-validation-for="MedicalExam.Result" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+
+                <div class="flex items-center justify-end gap-3">
+                    <a asp-page="./MedicalExams" class="text-gray-600 hover:text-gray-900 text-sm font-medium">Отмена</a>
+                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors">
+                        Сохранить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

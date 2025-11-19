@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyWebApp.Models;
 
-
 namespace MyWebApp.Data
 {
     public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options)
         {
         }
 
@@ -14,9 +14,8 @@ namespace MyWebApp.Data
         public DbSet<Procedure> Procedures { get; set; }
         public DbSet<Review> Reviews { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-        }
+        // Эти строки нужны, чтобы программа знала о новых таблицах
+        public DbSet<Employee> Employees { get; set; }
+        public DbSet<MedicalExam> MedicalExams { get; set; }
     }
 }

@@ -1,32 +1,43 @@
-﻿@page
+﻿@page "{id:int?}"
 @model MyWebApp.Pages.AddEditProcedureModel
 @{
-    ViewData["Title"] = Model.Procedure.ProcedureId == 0 ? "Добавить процедуру" : "Изменить процедуру";
+    ViewData["Title"] = Model.Procedure.Id == 0 ? "Новая услуга" : "Редактирование услуги";
 }
 
-<div class="container mt-4">
-    <h2>@ViewData["Title"]</h2>
-
-    <form method="post">
-        <input type="hidden" asp-for="Procedure.ProcedureId" />
-
-        <div class="mb-3">
-            <label asp-for="Procedure.Name" class="form-label">Название процедуры</label>
-            <input asp-for="Procedure.Name" class="form-control" />
-            <span asp-validation-for="Procedure.Name" class="text-danger"></span>
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 bg-emerald-600">
+            <h2 class="text-lg font-medium text-white">@ViewData["Title"]</h2>
         </div>
+        <div class="p-6">
+            <form method="post">
+                <input type="hidden" asp-for="Procedure.Id" />
 
-        <div class="mb-3">
-            <label asp-for="Procedure.Price" class="form-label">Цена</label>
-            <input asp-for="Procedure.Price" class="form-control" type="number" step="0.01" />
-            <span asp-validation-for="Procedure.Price" class="text-danger"></span>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Название услуги</label>
+                    <input asp-for="Procedure.Name" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" />
+                    <span asp-validation-for="Procedure.Name" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Цена (₽)</label>
+                    <input asp-for="Procedure.Price" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" placeholder="0.00" />
+                    <span asp-validation-for="Procedure.Price" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+
+                <div class="flex items-center justify-end gap-3">
+                    <a asp-page="./Procedures" class="text-gray-600 hover:text-gray-900 text-sm font-medium">Отмена</a>
+                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors">
+                        Сохранить
+                    </button>
+                </div>
+            </form>
         </div>
-
-        <button type="submit" class="btn btn-primary">Сохранить</button>
-        <a asp-page="/Procedures" class="btn btn-secondary">Отмена</a>
-    </form>
+    </div>
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

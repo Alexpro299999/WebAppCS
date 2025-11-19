@@ -1,66 +1,51 @@
 ﻿@page
 @model MyWebApp.Pages.ClientsModel
-@using MyWebApp.Models
 @{
     ViewData["Title"] = "Клиенты";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-people text-primary me-2"></i> @ViewData["Title"]</h2>
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Клиенты</h1>
+    <a asp-page="AddEditClient" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors flex items-center decoration-none">
+        <i class="fa-solid fa-plus mr-2"></i> Добавить
+    </a>
 </div>
-@if (!string.IsNullOrEmpty(Model.StatusMessage))
-{
-    <div class="alert @(Model.StatusMessage.StartsWith("Ошибка") ? "alert-danger" : "alert-success") alert-dismissible fade show" role="alert">
-        @Model.StatusMessage
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-}
-<div class="card shadow-sm">
-    <div class="card-header bg-light d-flex justify-content-between align-items-center">
-        <h5 class="card-title mb-0">Список клиентов</h5>
-        <a asp-page="AddEditClient" class="btn btn-success btn-sm">
-            <i class="bi bi-plus-circle me-1"></i> Добавить клиента
-        </a>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover table-striped align-middle">
-                <thead>
-                    <tr>
-                        <th><i class="bi bi-image"></i> Фото</th>
-                        <th><i class="bi bi-person"></i> ФИО</th>
-                        <th><i class="bi bi-telephone"></i> Телефон</th>
-                        <th><i class="bi bi-gear"></i> Действия</th>
+
+<div class="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Фамилия</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Имя</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Отчество</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Телефон</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Действия</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                @foreach (var item in Model.Clients)
+                {
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">@item.LastName</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">@item.FirstName</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">@item.MiddleName</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">@item.Phone</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">@item.Email</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <a asp-page="./AddEditClient" asp-route-id="@item.Id" class="text-emerald-600 hover:text-emerald-900 mr-3">
+                                <i class="fa-regular fa-pen-to-square"></i>
+                            </a>
+                            <form method="post" asp-page-handler="Delete" asp-route-id="@item.Id" style="display:inline;" onsubmit="return confirm('Удалить клиента?');">
+                                <button type="submit" class="text-red-600 hover:text-red-900 border-0 bg-transparent">
+                                    <i class="fa-regular fa-trash-can"></i>
+                                </button>
+                            </form>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    @foreach (var client in Model.Clients)
-                    {
-                        <tr>
-                            <td>
-                                <img src="@(client.Photo != null ? $"data:image/jpeg;base64,{Convert.ToBase64String(client.Photo)}" : "/default-avatar.jpeg")"
-                                     alt="@client.Fio" style="width:80px; height:80px; object-fit:cover; border-radius:50%;" />
-                            </td>
-                            <td><strong>@client.Fio</strong></td>
-                            <td>
-                                <a class="text-decoration-none">
-                                    <i class="bi bi-telephone me-1"></i> @client.Phone
-                                </a>
-                            </td>
-                            <td>
-                                <a asp-page="AddEditClient" asp-route-id="@client.ClientId" class="btn btn-primary btn-sm me-1">
-                                    <i class="bi bi-pencil"></i> Изменить
-                                </a>
-                                <form method="post" asp-page-handler="Delete" asp-route-id="@client.ClientId" class="d-inline">
-                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Удалить клиента?');">
-                                        <i class="bi bi-trash"></i> Удалить
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                }
+            </tbody>
+        </table>
     </div>
 </div>

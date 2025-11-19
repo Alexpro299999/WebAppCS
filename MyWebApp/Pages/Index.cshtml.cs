@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using MyWebApp.Data;
@@ -8,20 +9,22 @@ namespace MyWebApp.Pages
     {
         private readonly ApplicationDbContext _context;
 
-        public int TotalClients { get; set; }
-        public int TotalProcedures { get; set; }
-        public int TotalReviews { get; set; }
-
         public IndexModel(ApplicationDbContext context)
         {
             _context = context;
         }
 
+        public int ClientsCount { get; set; }
+        public int ExamsCount { get; set; }
+        public int EmployeesCount { get; set; }
+        public int ProceduresCount { get; set; }
+
         public async Task OnGetAsync()
         {
-            TotalClients = await _context.Clients.CountAsync();
-            TotalProcedures = await _context.Procedures.CountAsync();
-            TotalReviews = await _context.Reviews.CountAsync();
+            ClientsCount = await _context.Clients.CountAsync();
+            ExamsCount = await _context.MedicalExams.CountAsync();
+            EmployeesCount = await _context.Employees.CountAsync();
+            ProceduresCount = await _context.Procedures.CountAsync();
         }
     }
 }

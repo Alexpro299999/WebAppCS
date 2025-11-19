@@ -1,0 +1,58 @@
+﻿@page
+@model MyWebApp.Pages.MedicalExamsModel
+@{
+    ViewData["Title"] = "Журнал медосвидетельствований";
+}
+
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Журнал медосвидетельствований</h1>
+    <a asp-page="AddEditMedicalExam" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors flex items-center decoration-none">
+        <i class="fa-solid fa-plus mr-2"></i> Оформить
+    </a>
+</div>
+
+<div class="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дата</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Клиент</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Тип услуги</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Врач</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Заключение</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                @foreach (var item in Model.MedicalExams)
+                {
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">@item.Date.ToShortDateString()</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            @(item.Client != null ? $"{item.Client.LastName} {item.Client.FirstName}" : "—")
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                            @(item.Procedure != null ? item.Procedure.Name : "—")
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            @(item.Employee != null ? item.Employee.FullName : "—")
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full @(item.Result.Contains("Годен") ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800")">
+                                @item.Result
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <form method="post" asp-page-handler="Delete" asp-route-id="@item.Id" style="display:inline;" onsubmit="return confirm('Удалить запись?');">
+                                <button type="submit" class="text-red-600 hover:text-red-900 border-0 bg-transparent">
+                                    <i class="fa-regular fa-trash-can"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

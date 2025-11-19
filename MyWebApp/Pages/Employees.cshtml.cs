@@ -8,33 +8,32 @@ using MyWebApp.Models;
 
 namespace MyWebApp.Pages
 {
-    public class ReviewsModel : PageModel
+    public class EmployeesModel : PageModel
     {
         private readonly ApplicationDbContext _context;
 
-        public ReviewsModel(ApplicationDbContext context)
+        public EmployeesModel(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        public IList<Review> Reviews { get; set; }
+        public IList<Employee> Employees { get; set; }
 
         public async Task OnGetAsync()
         {
-            Reviews = await _context.Reviews
-                .Include(r => r.Client)
-                .Include(r => r.Procedure)
-                .ToListAsync();
+            Employees = await _context.Employees.ToListAsync();
         }
 
         public async Task<IActionResult> OnPostDeleteAsync(int id)
         {
-            var review = await _context.Reviews.FindAsync(id);
-            if (review != null)
+            var employee = await _context.Employees.FindAsync(id);
+
+            if (employee != null)
             {
-                _context.Reviews.Remove(review);
+                _context.Employees.Remove(employee);
                 await _context.SaveChangesAsync();
             }
+
             return RedirectToPage();
         }
     }

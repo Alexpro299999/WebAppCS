@@ -6,28 +6,28 @@ using MyWebApp.Models;
 
 namespace MyWebApp.Pages
 {
-    public class AddEditProcedureModel : PageModel
+    public class AddEditEmployeeModel : PageModel
     {
         private readonly ApplicationDbContext _context;
 
-        public AddEditProcedureModel(ApplicationDbContext context)
+        public AddEditEmployeeModel(ApplicationDbContext context)
         {
             _context = context;
         }
 
         [BindProperty]
-        public Procedure Procedure { get; set; }
+        public Employee Employee { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id.HasValue)
             {
-                Procedure = await _context.Procedures.FindAsync(id.Value);
-                if (Procedure == null) return NotFound();
+                Employee = await _context.Employees.FindAsync(id.Value);
+                if (Employee == null) return NotFound();
             }
             else
             {
-                Procedure = new Procedure();
+                Employee = new Employee();
             }
             return Page();
         }
@@ -36,17 +36,17 @@ namespace MyWebApp.Pages
         {
             if (!ModelState.IsValid) return Page();
 
-            if (Procedure.Id == 0)
+            if (Employee.Id == 0)
             {
-                _context.Procedures.Add(Procedure);
+                _context.Employees.Add(Employee);
             }
             else
             {
-                _context.Procedures.Update(Procedure);
+                _context.Employees.Update(Employee);
             }
 
             await _context.SaveChangesAsync();
-            return RedirectToPage("./Procedures");
+            return RedirectToPage("./Employees");
         }
     }
 }

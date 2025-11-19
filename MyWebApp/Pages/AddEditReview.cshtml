@@ -1,50 +1,66 @@
-﻿@page
+﻿@page "{id:int?}"
 @model MyWebApp.Pages.AddEditReviewModel
-@using MyWebApp.Models
-@using Microsoft.AspNetCore.Mvc.Rendering
 @{
-    ViewData["Title"] = Model.Review.ReviewId == 0 ? "Добавить отзыв" : "Изменить отзыв";
+    ViewData["Title"] = Model.Review.Id == 0 ? "Новый отзыв" : "Редактирование отзыва";
 }
 
-<div class="container mt-4">
-    <h2 class="mb-4">@ViewData["Title"]</h2>
-
-    <form method="post">
-        <input type="hidden" asp-for="Review.ReviewId" />
-
-        <div class="mb-3">
-            <label asp-for="Review.ClientId" class="form-label">Клиент</label>
-            <select asp-for="Review.ClientId" asp-items="Model.ClientOptions" class="form-select">
-                <option value="">Выберите клиента</option>
-            </select>
-            <span asp-validation-for="Review.ClientId" class="text-danger"></span>
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 bg-emerald-600">
+            <h2 class="text-lg font-medium text-white">@ViewData["Title"]</h2>
         </div>
+        <div class="p-6">
+            <form method="post">
+                <input type="hidden" asp-for="Review.Id" />
+                <input type="hidden" asp-for="Review.Date" />
 
-        <div class="mb-3">
-            <label asp-for="Review.ProcedureId" class="form-label">Процедура</label>
-            <select asp-for="Review.ProcedureId" asp-items="Model.ProcedureOptions" class="form-select">
-                <option value="">Выберите процедуру</option>
-            </select>
-            <span asp-validation-for="Review.ProcedureId" class="text-danger"></span>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Клиент</label>
+                    <!-- Здесь должна быть привязка к Review.ClientId -->
+                    <select asp-for="Review.ClientId" asp-items="Model.ClientList" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm rounded-md">
+                        <option value="">-- Выберите клиента --</option>
+                    </select>
+                    <span asp-validation-for="Review.ClientId" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Услуга</label>
+                    <!-- Здесь должна быть привязка к Review.ProcedureId -->
+                    <select asp-for="Review.ProcedureId" asp-items="Model.ProcedureList" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm rounded-md">
+                        <option value="">-- Выберите услугу --</option>
+                    </select>
+                    <span asp-validation-for="Review.ProcedureId" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Оценка (1-5)</label>
+                    <div class="flex items-center gap-4">
+                        <input asp-for="Review.Rating" type="range" min="1" max="5" step="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" oninput="document.getElementById('ratingVal').innerText = this.value">
+                        <span id="ratingVal" class="font-bold text-lg text-emerald-600">@Model.Review.Rating</span>
+                        <span class="text-yellow-500"><i class="fa-solid fa-star"></i></span>
+                    </div>
+                    <span asp-validation-for="Review.Rating" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Комментарий</label>
+                    <textarea asp-for="Review.Comment" rows="4" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"></textarea>
+                    <span asp-validation-for="Review.Comment" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+
+                <div class="flex items-center justify-end gap-3">
+                    <a asp-page="./Reviews" class="text-gray-600 hover:text-gray-900 text-sm font-medium">Отмена</a>
+                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors">
+                        Сохранить
+                    </button>
+                </div>
+            </form>
         </div>
-
-        <div class="mb-3">
-            <label asp-for="Review.Rating" class="form-label">Оценка (от 1 до 5)</label>
-            <input asp-for="Review.Rating" class="form-control" type="number" min="1" max="5" />
-            <span asp-validation-for="Review.Rating" class="text-danger"></span>
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="Review.Comment" class="form-label">Комментарий (необязательно)</label>
-            <textarea asp-for="Review.Comment" class="form-control" rows="3"></textarea>
-            <span asp-validation-for="Review.Comment" class="text-danger"></span>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Сохранить</button>
-        <a asp-page="/Reviews" class="btn btn-secondary">Отмена</a>
-    </form>
+    </div>
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
