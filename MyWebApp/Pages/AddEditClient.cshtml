@@ -1,0 +1,45 @@
+﻿@page
+@model MyWebApp.Pages.AddEditClientModel
+@{
+    ViewData["Title"] = Model.Client.ClientId == 0 ? "Добавить клиента" : "Изменить клиента";
+}
+
+<div class="container mt-4">
+    <h2>@ViewData["Title"]</h2>
+
+    <form method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="Client.ClientId" />
+
+        <div class="mb-3">
+            <label asp-for="Client.Fio" class="form-label">ФИО</label>
+            <input asp-for="Client.Fio" class="form-control" />
+            <span asp-validation-for="Client.Fio" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Client.Phone" class="form-label">Телефон</label>
+            <input asp-for="Client.Phone" class="form-control" />
+            <span asp-validation-for="Client.Phone" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label for="formFile" class="form-label">Фото клиента</label>
+            @if (Model.Client.Photo != null && Model.Client.Photo.Length > 0)
+            {
+                <div class="mb-2">
+                    <img src="data:image/jpeg;base64,@(Convert.ToBase64String(Model.Client.Photo))"
+                         alt="Текущее фото" style="width:150px; height:150px; object-fit:cover; border-radius:10px;" class="img-thumbnail" />
+                </div>
+            }
+            <input class="form-control" type="file" id="formFile" name="uploadedPhoto" accept="image/*" />
+            <small class="text-muted">Выберите изображение (JPEG, PNG). Если не выбрано, старое фото останется.</small>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+        <a asp-page="/Clients" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

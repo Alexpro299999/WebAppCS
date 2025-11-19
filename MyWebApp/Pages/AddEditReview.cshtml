@@ -1,0 +1,50 @@
+﻿@page
+@model MyWebApp.Pages.AddEditReviewModel
+@using MyWebApp.Models
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    ViewData["Title"] = Model.Review.ReviewId == 0 ? "Добавить отзыв" : "Изменить отзыв";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">@ViewData["Title"]</h2>
+
+    <form method="post">
+        <input type="hidden" asp-for="Review.ReviewId" />
+
+        <div class="mb-3">
+            <label asp-for="Review.ClientId" class="form-label">Клиент</label>
+            <select asp-for="Review.ClientId" asp-items="Model.ClientOptions" class="form-select">
+                <option value="">Выберите клиента</option>
+            </select>
+            <span asp-validation-for="Review.ClientId" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Review.ProcedureId" class="form-label">Процедура</label>
+            <select asp-for="Review.ProcedureId" asp-items="Model.ProcedureOptions" class="form-select">
+                <option value="">Выберите процедуру</option>
+            </select>
+            <span asp-validation-for="Review.ProcedureId" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Review.Rating" class="form-label">Оценка (от 1 до 5)</label>
+            <input asp-for="Review.Rating" class="form-control" type="number" min="1" max="5" />
+            <span asp-validation-for="Review.Rating" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Review.Comment" class="form-label">Комментарий (необязательно)</label>
+            <textarea asp-for="Review.Comment" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Review.Comment" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+        <a asp-page="/Reviews" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

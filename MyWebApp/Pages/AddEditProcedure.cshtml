@@ -1,0 +1,32 @@
+﻿@page
+@model MyWebApp.Pages.AddEditProcedureModel
+@{
+    ViewData["Title"] = Model.Procedure.ProcedureId == 0 ? "Добавить процедуру" : "Изменить процедуру";
+}
+
+<div class="container mt-4">
+    <h2>@ViewData["Title"]</h2>
+
+    <form method="post">
+        <input type="hidden" asp-for="Procedure.ProcedureId" />
+
+        <div class="mb-3">
+            <label asp-for="Procedure.Name" class="form-label">Название процедуры</label>
+            <input asp-for="Procedure.Name" class="form-control" />
+            <span asp-validation-for="Procedure.Name" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Procedure.Price" class="form-label">Цена</label>
+            <input asp-for="Procedure.Price" class="form-control" type="number" step="0.01" />
+            <span asp-validation-for="Procedure.Price" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+        <a asp-page="/Procedures" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

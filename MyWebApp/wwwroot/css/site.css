@@ -1,0 +1,82 @@
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.display-4 {
+    font-weight: 300;
+}
+
+.btn {
+    border-radius: 25px;
+    padding: 10px 25px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+    .btn:hover {
+        transform: translateY(-2px);
+    }
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    background-color: #f8f9fa;
+}
+
+.badge {
+    font-size: 0.8em;
+    border-radius: 10px;
+}
+
+.text-warning {
+    color: #ffc107 !important;
+}
+
+.bg-primary {
+    background: linear-gradient(45deg, #007bff, #0056b3) !important;
+}
+
+/* Анимации */
+.fade-in {
+    animation: fadeIn 0.6s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .display-4 {
+        font-size: 2.5rem;
+    }
+
+    .card {
+        margin-bottom: 1rem;
+    }
+}

@@ -1,0 +1,50 @@
+﻿@page
+@model MyWebApp.Pages.IndexModel
+@using MyWebApp.Models
+@{
+    ViewData["Title"] = "Главная - Beauty Salon";
+}
+
+<div class="container text-center py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="display-4 text-primary mb-4">
+                <i class="bi bi-magic"></i> Beauty Salon
+            </h1>
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <i class="bi bi-people display-6 text-primary mb-3"></i>
+                            <h5>Клиенты</h5>
+                            <a asp-page="/Clients" class="btn btn-primary">Перейти</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <i class="bi bi-scissors display-6 text-success mb-3"></i>
+                            <h5>Процедуры</h5>
+                            <a asp-page="/Procedures" class="btn btn-success">Перейти</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <i class="bi bi-chat-left-text display-6 text-warning mb-3"></i>
+                            <h5>Отзывы</h5>
+                            <a asp-page="/Reviews" class="btn btn-warning">Перейти</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+           
+        </div>
+    </div>
+</div>
