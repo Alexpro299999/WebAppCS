@@ -9,11 +9,11 @@ namespace MyWebApp.Models
 
         [Required]
         public int ClientId { get; set; }
-        public Client Client { get; set; }
+        public Client? Client { get; set; }
 
         [Required]
         public int ProcedureId { get; set; }
-        public Procedure Procedure { get; set; }
+        public Procedure? Procedure { get; set; }
 
         [Range(1, 5, ErrorMessage = "Оценка должна быть от 1 до 5")]
         public int Rating { get; set; }

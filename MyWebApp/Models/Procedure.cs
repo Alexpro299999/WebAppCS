@@ -14,6 +14,6 @@ namespace MyWebApp.Models
         [Range(0, 100000, ErrorMessage = "Цена должна быть положительной")]
         public decimal Price { get; set; }
 
-        public ICollection<Review> Reviews { get; set; }
+        public ICollection<Review>? Reviews { get; set; }
     }
 }

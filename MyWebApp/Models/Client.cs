@@ -23,6 +23,6 @@ namespace MyWebApp.Models
         [EmailAddress(ErrorMessage = "Некорректный email")]
         public string Email { get; set; }
 
-        public ICollection<Review> Reviews { get; set; }
+        public ICollection<Review>? Reviews { get; set; }
     }
 }

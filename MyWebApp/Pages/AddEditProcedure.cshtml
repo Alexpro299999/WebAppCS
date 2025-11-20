@@ -10,9 +10,9 @@
             <h2 class="text-lg font-medium text-white">@ViewData["Title"]</h2>
         </div>
         <div class="p-6">
-            <form method="post">
+            <form method="post" asp-page="AddEditProcedure">
                 <input type="hidden" asp-for="Procedure.Id" />
-
+                
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Название услуги</label>
                     <input asp-for="Procedure.Name" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" />
@@ -21,7 +21,7 @@
 
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Цена (₽)</label>
-                    <input asp-for="Procedure.Price" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" placeholder="0.00" />
+                    <input asp-for="Procedure.Price" type="text" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" placeholder="0.00" />
                     <span asp-validation-for="Procedure.Price" class="text-red-500 text-xs mt-1 block"></span>
                 </div>
 
@@ -37,7 +37,5 @@
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

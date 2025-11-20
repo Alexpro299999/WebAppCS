@@ -27,13 +27,13 @@
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">@item.FullName</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@item.Position</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <a asp-page="./AddEditEmployee" asp-route-id="@item.Id" class="text-emerald-600 hover:text-emerald-900 mr-3">
-                                <i class="fa-regular fa-pen-to-square"></i>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex justify-end gap-2">
+                            <a asp-page="./AddEditEmployee" asp-route-id="@item.Id" class="text-emerald-600 hover:text-emerald-900 bg-emerald-50 px-3 py-1 rounded hover:bg-emerald-100 transition">
+                                <i class="fa-regular fa-pen-to-square"></i> Ред.
                             </a>
                             <form method="post" asp-page-handler="Delete" asp-route-id="@item.Id" style="display:inline;" onsubmit="return confirm('Удалить сотрудника?');">
-                                <button type="submit" class="text-red-600 hover:text-red-900 border-0 bg-transparent">
-                                    <i class="fa-regular fa-trash-can"></i>
+                                <button type="submit" class="text-red-600 hover:text-red-900 bg-red-50 px-3 py-1 rounded hover:bg-red-100 transition border-0">
+                                    <i class="fa-regular fa-trash-can"></i> Удал.
                                 </button>
                             </form>
                         </td>
