@@ -1,0 +1,93 @@
+﻿@page
+@model MyWebApp.Pages.Dynamic.SchemaModel
+@{
+    ViewData["Title"] = "Конструктор таблиц";
+}
+
+<div class="max-w-6xl mx-auto">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">Конструктор таблиц (EAV)</h2>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+        <h5 class="text-lg font-semibold text-gray-700 mb-4">Создать новую таблицу</h5>
+        <form method="post" asp-page-handler="CreateEntity" class="flex gap-4 items-end">
+            <div class="flex-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Название таблицы</label>
+                <input type="text" name="entityName" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500" required />
+            </div>
+            <button type="submit" class="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors font-medium">Создать</button>
+        </form>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        @foreach (var entity in Model.Entities)
+        {
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col h-full">
+                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-xl">
+                    <form method="post" asp-page-handler="RenameEntity" class="flex-1 mr-4">
+                        <input type="hidden" name="id" value="@entity.Id" />
+                        <input type="text" name="newName" value="@entity.Name" class="bg-transparent border-none font-bold text-gray-700 w-full focus:ring-0 p-0" onchange="this.form.submit()" />
+                    </form>
+                    <div class="flex gap-2">
+                        <a href="/Dynamic/Data?entityId=@entity.Id" class="text-sm bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full hover:bg-emerald-200 transition-colors">Данные</a>
+                        <form method="post" asp-page-handler="DeleteEntity" class="inline" onsubmit="return confirm('Удалить таблицу и все данные?');">
+                            <input type="hidden" name="id" value="@entity.Id" />
+                            <button class="text-sm bg-red-100 text-red-700 px-3 py-1 rounded-full hover:bg-red-200 transition-colors">X</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="p-6 flex-1">
+                    <h6 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Поля (Атрибуты):</h6>
+                    <ul class="space-y-2 mb-4">
+                        @foreach (var attr in entity.Attributes)
+                        {
+                            <li class="flex justify-between items-center text-sm p-2 bg-gray-50 rounded-md">
+                                <span class="font-medium text-gray-700">@attr.Name</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded">
+                                        @if (attr.DataType == "relation" && attr.LinkedEntityId.HasValue)
+                                        {
+                                            @:Связь -> @Model.Entities.FirstOrDefault(e => e.Id == attr.LinkedEntityId)?.Name
+                                        }
+                                        else
+                                        {
+                                            @attr.DataType
+                                        }
+                                    </span>
+                                    <form method="post" asp-page-handler="DeleteAttribute" class="inline" onsubmit="return confirm('Удалить поле?');">
+                                        <input type="hidden" name="id" value="@attr.Id" />
+                                        <button class="text-red-500 hover:text-red-700 font-bold">&times;</button>
+                                    </form>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+
+                    <form method="post" asp-page-handler="AddAttribute" class="mt-auto pt-4 border-t border-gray-100 grid grid-cols-1 gap-2">
+                        <input type="hidden" name="entityId" value="@entity.Id" />
+                        <input type="text" name="attrName" class="text-sm rounded-md border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" placeholder="Название поля" required />
+
+                        <div class="flex gap-2">
+                            <select name="dataType" class="flex-1 text-sm rounded-md border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" onchange="this.nextElementSibling.classList.toggle('hidden', this.value !== 'relation')">
+                                <option value="string">Текст</option>
+                                <option value="number">Число</option>
+                                <option value="date">Дата</option>
+                                <option value="bool">Да/Нет</option>
+                                <option value="relation">Связь (Link)</option>
+                            </select>
+
+                            <select name="linkedEntityId" class="hidden flex-1 text-sm rounded-md border-gray-300 focus:border-emerald-500 focus:ring-emerald-500">
+                                <option value="">-- Выбрать таблицу --</option>
+                                @foreach (var ent in Model.Entities)
+                                {
+                                    <option value="@ent.Id">@ent.Name</option>
+                                }
+                            </select>
+                        </div>
+
+                        <button type="submit" class="w-full text-sm bg-gray-800 text-white px-3 py-2 rounded-md hover:bg-gray-700 transition-colors">Добавить поле</button>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+</div>
