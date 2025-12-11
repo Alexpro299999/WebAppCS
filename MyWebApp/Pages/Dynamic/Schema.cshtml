@@ -7,6 +7,8 @@
 <div class="max-w-6xl mx-auto">
     <h2 class="text-2xl font-bold text-gray-800 mb-6">Конструктор таблиц (EAV)</h2>
 
+    <div asp-validation-summary="All" class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 text-red-700 text-sm rounded shadow-sm empty:hidden"></div>
+
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
         <h5 class="text-lg font-semibold text-gray-700 mb-4">Создать новую таблицу</h5>
         <form method="post" asp-page-handler="CreateEntity" class="flex gap-4 items-end">

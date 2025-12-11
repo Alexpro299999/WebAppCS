@@ -15,14 +15,24 @@ namespace MyWebApp.Pages.Dynamic
             _context = context;
         }
 
-        public EavEntity CurrentEntity { get; set; }
-        public List<EavRecord> Records { get; set; }
+        public EavEntity? CurrentEntity { get; set; }
+        public List<EavRecord> Records { get; set; } = new();
+        public List<EavEntity> AllEntities { get; set; } = new();
 
-        // Dictionary<EntityId, Dictionary<RecordId, DisplayText>>
+        // Данные для режима редактирования
+        public int? EditRecordId { get; set; }
+        public Dictionary<int, string> EditValues { get; set; } = new();
+
         public Dictionary<int, Dictionary<int, string>> LookupValues { get; set; } = new();
 
-        public async Task OnGetAsync(int entityId)
+        public async Task OnGetAsync(int? entityId, int? editRecordId = null)
         {
+            if (entityId == null || entityId == 0)
+            {
+                AllEntities = await _context.EavEntities.OrderBy(e => e.Name).ToListAsync();
+                return;
+            }
+
             CurrentEntity = await _context.EavEntities
                 .Include(e => e.Attributes)
                 .FirstOrDefaultAsync(e => e.Id == entityId);
@@ -34,12 +44,29 @@ namespace MyWebApp.Pages.Dynamic
                     .Include(r => r.Values)
                     .ToListAsync();
 
-                // Load lookups for relation attributes
-                var relationAttrs = CurrentEntity.Attributes.Where(a => a.DataType == "relation" && a.LinkedEntityId.HasValue).ToList();
+                var relationAttrs = CurrentEntity.Attributes
+                    .Where(a => a.DataType == "relation" && a.LinkedEntityId.HasValue)
+                    .ToList();
+
                 foreach (var attr in relationAttrs)
                 {
                     await LoadLookupData(attr.LinkedEntityId.Value);
                 }
+
+                // Логика загрузки записи для редактирования
+                if (editRecordId.HasValue)
+                {
+                    var recordToEdit = Records.FirstOrDefault(r => r.Id == editRecordId.Value);
+                    if (recordToEdit != null)
+                    {
+                        EditRecordId = editRecordId;
+                        EditValues = recordToEdit.Values.ToDictionary(v => v.EavAttributeId, v => v.Value ?? "");
+                    }
+                }
+            }
+            else
+            {
+                AllEntities = await _context.EavEntities.OrderBy(e => e.Name).ToListAsync();
             }
         }
 
@@ -56,18 +83,32 @@ namespace MyWebApp.Pages.Dynamic
             var dict = new Dictionary<int, string>();
             foreach (var rec in records)
             {
-                // Try to find a string attribute to use as name, otherwise use ID
                 var nameVal = rec.Values.FirstOrDefault(v => v.EavAttribute.DataType == "string")?.Value;
                 dict[rec.Id] = string.IsNullOrEmpty(nameVal) ? $"Запись #{rec.Id}" : nameVal;
             }
             LookupValues[linkedEntityId] = dict;
         }
 
-        public async Task<IActionResult> OnPostSaveRecordAsync(int entityId)
+        public async Task<IActionResult> OnPostSaveRecordAsync(int entityId, int? recordId)
         {
-            var newRecord = new EavRecord { EavEntityId = entityId };
-            _context.EavRecords.Add(newRecord);
-            await _context.SaveChangesAsync();
+            EavRecord record;
+
+            if (recordId.HasValue)
+            {
+                // Редактирование
+                record = await _context.EavRecords
+                    .Include(r => r.Values)
+                    .FirstOrDefaultAsync(r => r.Id == recordId.Value);
+
+                if (record == null) return NotFound();
+            }
+            else
+            {
+                // Создание новой
+                record = new EavRecord { EavEntityId = entityId };
+                _context.EavRecords.Add(record);
+                await _context.SaveChangesAsync(); // Сохраняем, чтобы получить ID
+            }
 
             var formValues = Request.Form;
             foreach (var key in formValues.Keys)
@@ -77,16 +118,29 @@ namespace MyWebApp.Pages.Dynamic
                     var attrIdStr = key.Replace("values[", "").Replace("]", "");
                     if (int.TryParse(attrIdStr, out int attrId))
                     {
-                        var val = formValues[key].ToString();
-                        _context.EavValues.Add(new EavValue
+                        var newVal = formValues[key].ToString();
+
+                        // Ищем существующее значение
+                        var existingValue = record.Values.FirstOrDefault(v => v.EavAttributeId == attrId);
+
+                        if (existingValue != null)
                         {
-                            EavRecordId = newRecord.Id,
-                            EavAttributeId = attrId,
-                            Value = val
-                        });
+                            existingValue.Value = newVal;
+                            _context.EavValues.Update(existingValue);
+                        }
+                        else
+                        {
+                            _context.EavValues.Add(new EavValue
+                            {
+                                EavRecordId = record.Id,
+                                EavAttributeId = attrId,
+                                Value = newVal
+                            });
+                        }
                     }
                 }
             }
+
             await _context.SaveChangesAsync();
             return RedirectToPage(new { entityId });
         }
