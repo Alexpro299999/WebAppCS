@@ -48,7 +48,7 @@
                                     <span class="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded">
                                         @if (attr.DataType == "relation" && attr.LinkedEntityId.HasValue)
                                         {
-                                            @:Связь -> @Model.Entities.FirstOrDefault(e => e.Id == attr.LinkedEntityId)?.Name
+                                            @:Связь -> @(attr.LinkedEntity?.Name ?? Model.Entities.FirstOrDefault(e => e.Id == attr.LinkedEntityId)?.Name)
                                         }
                                         else
                                         {

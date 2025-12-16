@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MyWebApp.Data;
 using MyWebApp.Models;
@@ -15,128 +16,117 @@ namespace MyWebApp.Pages.Dynamic
             _context = context;
         }
 
-        public EavEntity? CurrentEntity { get; set; }
-        public List<EavRecord> Records { get; set; } = new();
+        public EavEntity? Entity { get; set; }
         public List<EavEntity> AllEntities { get; set; } = new();
+        public List<EavRecord> Records { get; set; } = new();
+        public Dictionary<int, List<SelectListItem>> RelationOptions { get; set; } = new();
 
-        // Данные для режима редактирования
-        public int? EditRecordId { get; set; }
-        public Dictionary<int, string> EditValues { get; set; } = new();
+        [TempData]
+        public string ErrorMessage { get; set; }
 
-        public Dictionary<int, Dictionary<int, string>> LookupValues { get; set; } = new();
-
-        public async Task OnGetAsync(int? entityId, int? editRecordId = null)
+        public async Task<IActionResult> OnGetAsync(int? entityId)
         {
-            if (entityId == null || entityId == 0)
+            AllEntities = await _context.EavEntities.OrderBy(e => e.Name).ToListAsync();
+
+            if (!AllEntities.Any())
             {
-                AllEntities = await _context.EavEntities.OrderBy(e => e.Name).ToListAsync();
-                return;
+                return RedirectToPage("Schema");
             }
 
-            CurrentEntity = await _context.EavEntities
-                .Include(e => e.Attributes)
-                .FirstOrDefaultAsync(e => e.Id == entityId);
-
-            if (CurrentEntity != null)
+            if (!entityId.HasValue)
             {
-                Records = await _context.EavRecords
-                    .Where(r => r.EavEntityId == entityId)
+                entityId = AllEntities.First().Id;
+            }
+
+            Entity = await _context.EavEntities
+                .Include(e => e.Attributes)
+                .ThenInclude(a => a.LinkedEntity)
+                .FirstOrDefaultAsync(e => e.Id == entityId.Value);
+
+            if (Entity == null)
+            {
+                return RedirectToPage("Schema");
+            }
+
+            Records = await _context.EavRecords
+                .Include(r => r.Values)
+                .ThenInclude(v => v.LinkedRecord)
+                .ThenInclude(lr => lr.Values)
+                .ThenInclude(lrv => lrv.EavAttribute)
+                .Where(r => r.EavEntityId == entityId.Value)
+                .ToListAsync();
+
+            foreach (var attr in Entity.Attributes.Where(a => a.DataType == "relation" && a.LinkedEntityId.HasValue))
+            {
+                var linkedRecords = await _context.EavRecords
                     .Include(r => r.Values)
+                    .ThenInclude(v => v.EavAttribute)
+                    .Where(r => r.EavEntityId == attr.LinkedEntityId.Value)
                     .ToListAsync();
 
-                var relationAttrs = CurrentEntity.Attributes
-                    .Where(a => a.DataType == "relation" && a.LinkedEntityId.HasValue)
-                    .ToList();
-
-                foreach (var attr in relationAttrs)
+                RelationOptions[attr.Id] = linkedRecords.Select(r => new SelectListItem
                 {
-                    await LoadLookupData(attr.LinkedEntityId.Value);
-                }
+                    Value = r.Id.ToString(),
+                    Text = GetRecordDisplayName(r)
+                }).ToList();
+            }
 
-                // Логика загрузки записи для редактирования
-                if (editRecordId.HasValue)
+            return Page();
+        }
+
+        public string GetRecordDisplayName(EavRecord record)
+        {
+            if (record == null) return string.Empty;
+
+            var nameAttr = record.Values.FirstOrDefault(v =>
+                v.EavAttribute != null &&
+                (v.EavAttribute.Name.ToLower().Contains("name") ||
+                 v.EavAttribute.Name.ToLower().Contains("имя") ||
+                 v.EavAttribute.Name.ToLower().Contains("название")));
+
+            if (nameAttr != null && !string.IsNullOrEmpty(nameAttr.Value))
+                return nameAttr.Value;
+
+            var firstVal = record.Values.FirstOrDefault(v => !string.IsNullOrEmpty(v.Value));
+            if (firstVal != null) return firstVal.Value;
+
+            return $"#{record.Id}";
+        }
+
+        public async Task<IActionResult> OnPostAddRecordAsync(int entityId, Dictionary<int, string> values, Dictionary<int, int?> relations)
+        {
+            var record = new EavRecord { EavEntityId = entityId };
+            _context.EavRecords.Add(record);
+            await _context.SaveChangesAsync();
+
+            if (values != null)
+            {
+                foreach (var item in values)
                 {
-                    var recordToEdit = Records.FirstOrDefault(r => r.Id == editRecordId.Value);
-                    if (recordToEdit != null)
+                    if (!string.IsNullOrWhiteSpace(item.Value))
                     {
-                        EditRecordId = editRecordId;
-                        EditValues = recordToEdit.Values.ToDictionary(v => v.EavAttributeId, v => v.Value ?? "");
+                        _context.EavValues.Add(new EavValue
+                        {
+                            EavRecordId = record.Id,
+                            EavAttributeId = item.Key,
+                            Value = item.Value
+                        });
                     }
                 }
             }
-            else
+
+            if (relations != null)
             {
-                AllEntities = await _context.EavEntities.OrderBy(e => e.Name).ToListAsync();
-            }
-        }
-
-        private async Task LoadLookupData(int linkedEntityId)
-        {
-            if (LookupValues.ContainsKey(linkedEntityId)) return;
-
-            var records = await _context.EavRecords
-                .Where(r => r.EavEntityId == linkedEntityId)
-                .Include(r => r.Values)
-                .ThenInclude(v => v.EavAttribute)
-                .ToListAsync();
-
-            var dict = new Dictionary<int, string>();
-            foreach (var rec in records)
-            {
-                var nameVal = rec.Values.FirstOrDefault(v => v.EavAttribute.DataType == "string")?.Value;
-                dict[rec.Id] = string.IsNullOrEmpty(nameVal) ? $"Запись #{rec.Id}" : nameVal;
-            }
-            LookupValues[linkedEntityId] = dict;
-        }
-
-        public async Task<IActionResult> OnPostSaveRecordAsync(int entityId, int? recordId)
-        {
-            EavRecord record;
-
-            if (recordId.HasValue)
-            {
-                // Редактирование
-                record = await _context.EavRecords
-                    .Include(r => r.Values)
-                    .FirstOrDefaultAsync(r => r.Id == recordId.Value);
-
-                if (record == null) return NotFound();
-            }
-            else
-            {
-                // Создание новой
-                record = new EavRecord { EavEntityId = entityId };
-                _context.EavRecords.Add(record);
-                await _context.SaveChangesAsync(); // Сохраняем, чтобы получить ID
-            }
-
-            var formValues = Request.Form;
-            foreach (var key in formValues.Keys)
-            {
-                if (key.StartsWith("values["))
+                foreach (var item in relations)
                 {
-                    var attrIdStr = key.Replace("values[", "").Replace("]", "");
-                    if (int.TryParse(attrIdStr, out int attrId))
+                    if (item.Value.HasValue)
                     {
-                        var newVal = formValues[key].ToString();
-
-                        // Ищем существующее значение
-                        var existingValue = record.Values.FirstOrDefault(v => v.EavAttributeId == attrId);
-
-                        if (existingValue != null)
+                        _context.EavValues.Add(new EavValue
                         {
-                            existingValue.Value = newVal;
-                            _context.EavValues.Update(existingValue);
-                        }
-                        else
-                        {
-                            _context.EavValues.Add(new EavValue
-                            {
-                                EavRecordId = record.Id,
-                                EavAttributeId = attrId,
-                                Value = newVal
-                            });
-                        }
+                            EavRecordId = record.Id,
+                            EavAttributeId = item.Key,
+                            LinkedRecordId = item.Value.Value
+                        });
                     }
                 }
             }
@@ -145,13 +135,32 @@ namespace MyWebApp.Pages.Dynamic
             return RedirectToPage(new { entityId });
         }
 
-        public async Task<IActionResult> OnPostDeleteRecordAsync(int recordId, int entityId)
+        public async Task<IActionResult> OnPostDeleteRecordAsync(int id, int entityId)
         {
-            var record = await _context.EavRecords.FindAsync(recordId);
+            // Проверка: ссылается ли кто-то на эту запись
+            var referencingValue = await _context.EavValues
+                .Include(v => v.EavRecord)
+                .ThenInclude(r => r.EavEntity)
+                .FirstOrDefaultAsync(v => v.LinkedRecordId == id);
+
+            if (referencingValue != null)
+            {
+                ErrorMessage = $"Нельзя удалить запись #{id}, так как на неё ссылается запись #{referencingValue.EavRecordId} из таблицы '{referencingValue.EavRecord.EavEntity.Name}'. Сначала удалите или измените ссылающуюся запись.";
+                return RedirectToPage(new { entityId });
+            }
+
+            var record = await _context.EavRecords.FindAsync(id);
             if (record != null)
             {
-                _context.EavRecords.Remove(record);
-                await _context.SaveChangesAsync();
+                try
+                {
+                    _context.EavRecords.Remove(record);
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception)
+                {
+                    ErrorMessage = "Ошибка при удалении записи. Возможно, существуют скрытые связи.";
+                }
             }
             return RedirectToPage(new { entityId });
         }

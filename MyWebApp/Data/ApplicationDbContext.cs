@@ -24,6 +24,42 @@ namespace MyWebApp.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<EavEntity>()
+                .HasMany(e => e.Attributes)
+                .WithOne(a => a.EavEntity)
+                .HasForeignKey(a => a.EavEntityId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<EavAttribute>()
+                .HasOne(a => a.LinkedEntity)
+                .WithMany()
+                .HasForeignKey(a => a.LinkedEntityId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<EavEntity>()
+                .HasMany(e => e.Records)
+                .WithOne(r => r.EavEntity)
+                .HasForeignKey(r => r.EavEntityId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<EavRecord>()
+                .HasMany(r => r.Values)
+                .WithOne(v => v.EavRecord)
+                .HasForeignKey(v => v.EavRecordId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<EavValue>()
+                .HasOne(v => v.EavAttribute)
+                .WithMany()
+                .HasForeignKey(v => v.EavAttributeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<EavValue>()
+                .HasOne(v => v.LinkedRecord)
+                .WithMany()
+                .HasForeignKey(v => v.LinkedRecordId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

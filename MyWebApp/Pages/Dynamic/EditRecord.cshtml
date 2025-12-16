@@ -1,0 +1,63 @@
+﻿@page
+@model MyWebApp.Pages.Dynamic.EditRecordModel
+@{
+    ViewData["Title"] = "Редактирование записи";
+}
+
+<div class="max-w-2xl mx-auto mt-10">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+            <h2 class="text-xl font-bold text-gray-800">Редактирование записи #@Model.Record.Id</h2>
+            <a href="/Dynamic/Data?entityId=@Model.Entity.Id" class="text-gray-500 hover:text-gray-700">Отмена</a>
+        </div>
+
+        <form method="post">
+            <input type="hidden" name="id" value="@Model.Record.Id" />
+            <input type="hidden" name="entityId" value="@Model.Entity.Id" />
+
+            <div class="space-y-4">
+                @foreach (var attr in Model.Entity.Attributes)
+                {
+                    <div class="flex flex-col">
+                        <label class="text-sm font-medium text-gray-700 mb-1">@attr.Name</label>
+
+                        @if (attr.DataType == "relation" && Model.RelationOptions.ContainsKey(attr.Id))
+                        {
+                            <select name="relations[@attr.Id]" class="rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 text-sm">
+                                <option value="">-- Не выбрано --</option>
+                                @foreach (var opt in Model.RelationOptions[attr.Id])
+                                {
+                                    <!option value="@opt.Value" @(opt.Selected ? "selected" : "")>@opt.Text</!option>
+                                }
+                            </select>
+                        }
+                        else if (attr.DataType == "bool")
+                        {
+                            var currentVal = Model.CurrentValues.ContainsKey(attr.Id) ? Model.CurrentValues[attr.Id] : "false";
+                            <select name="values[@attr.Id]" class="rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 text-sm">
+                                <!option value="false" @(currentVal == "false" ? "selected" : "")>Нет</!option>
+                                <!option value="true" @(currentVal == "true" ? "selected" : "")>Да</!option>
+                            </select>
+                        }
+                        else if (attr.DataType == "date")
+                        {
+                            <input type="date" name="values[@attr.Id]" value="@(Model.CurrentValues.ContainsKey(attr.Id) ? Model.CurrentValues[attr.Id] : "")" class="rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 text-sm" />
+                        }
+                        else if (attr.DataType == "number")
+                        {
+                            <input type="number" step="any" name="values[@attr.Id]" value="@(Model.CurrentValues.ContainsKey(attr.Id) ? Model.CurrentValues[attr.Id] : "")" class="rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 text-sm" />
+                        }
+                        else
+                        {
+                            <input type="text" name="values[@attr.Id]" value="@(Model.CurrentValues.ContainsKey(attr.Id) ? Model.CurrentValues[attr.Id] : "")" class="rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 text-sm" />
+                        }
+                    </div>
+                }
+            </div>
+
+            <div class="mt-8 flex gap-4">
+                <button type="submit" class="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors font-medium">Сохранить</button>
+            </div>
+        </form>
+    </div>
+</div>

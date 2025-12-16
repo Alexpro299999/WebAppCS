@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using MyWebApp.Data;
 using MyWebApp.Models;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MyWebApp.Pages.Dynamic
 {
@@ -26,6 +29,7 @@ namespace MyWebApp.Pages.Dynamic
         {
             Entities = await _context.EavEntities
                 .Include(e => e.Attributes)
+                .ThenInclude(a => a.LinkedEntity)
                 .OrderBy(e => e.Name)
                 .ToListAsync();
         }
@@ -39,7 +43,6 @@ namespace MyWebApp.Pages.Dynamic
                 return Page();
             }
 
-            // Проверка на дубликат имени таблицы
             if (await _context.EavEntities.AnyAsync(e => e.Name == entityName))
             {
                 ModelState.AddModelError(string.Empty, $"Таблица с именем '{entityName}' уже существует.");
@@ -60,7 +63,6 @@ namespace MyWebApp.Pages.Dynamic
             var entity = await _context.EavEntities.FindAsync(id);
             if (entity != null)
             {
-                // Проверяем, не занято ли новое имя другой таблицей
                 if (await _context.EavEntities.AnyAsync(e => e.Name == newName && e.Id != id))
                 {
                     ModelState.AddModelError(string.Empty, $"Таблица с именем '{newName}' уже существует.");
@@ -78,7 +80,6 @@ namespace MyWebApp.Pages.Dynamic
         {
             if (string.IsNullOrWhiteSpace(attrName)) return RedirectToPage();
 
-            // Проверка на дубликат поля внутри одной таблицы
             var exists = await _context.EavAttributes
                 .AnyAsync(a => a.EavEntityId == entityId && a.Name == attrName);
 
@@ -96,8 +97,22 @@ namespace MyWebApp.Pages.Dynamic
                 DataType = dataType ?? "string"
             };
 
-            if (dataType == "relation" && linkedEntityId.HasValue)
+            if (dataType == "relation")
             {
+                if (!linkedEntityId.HasValue)
+                {
+                    ModelState.AddModelError(string.Empty, "Для типа 'Связь' необходимо выбрать таблицу.");
+                    await LoadData();
+                    return Page();
+                }
+
+                if (!await _context.EavEntities.AnyAsync(e => e.Id == linkedEntityId.Value))
+                {
+                    ModelState.AddModelError(string.Empty, "Выбранная таблица для связи не существует.");
+                    await LoadData();
+                    return Page();
+                }
+
                 attr.LinkedEntityId = linkedEntityId.Value;
             }
 
